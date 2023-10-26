@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import "./style.css";
 import { Link } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
+import { register } from "../http/api";
 
 const Signup = () => {
-  const data = { data: false };
   const [inputField, setInputField] = useState({});
   const inputHandler = (e) => {
     setInputField({ ...inputField, [e.target.name]: e.target.value });
@@ -12,10 +12,12 @@ const Signup = () => {
   const handleLogin = async (event) => {
     event.preventDefault();
     try {
-      if (data.data === true) {
-        toast.success("Login Successfully");
-      } else if (data.data === false) {
-        toast.error("Wrong credentials");
+      const response = await register(inputField);
+
+      if (response.data.status === true) {
+        toast.success("Register Successfully");
+      } else if (response.data.status === false) {
+        toast.error(response.data.error);
       } else {
         toast.error("Internal server error");
       }
@@ -74,7 +76,6 @@ const Signup = () => {
                   </label>
                   <input
                     type='password'
-                    name='re_pass'
                     id='re_pass'
                     placeholder='Repeat your password'
                   />

@@ -1,12 +1,15 @@
-import React, { useState } from "react";
-
-import { Link } from "react-router-dom";
-import { toast, Toaster } from "react-hot-toast";
 import "./style.css";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { toast, Toaster } from "react-hot-toast";
+import { login } from "../http/api";
+import { useDispatch } from "react-redux";
+import { setLogin } from "../features/auth/authSlice";
 
 const Login = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [inputField, setInputField] = useState({});
-  const data = { data: false };
 
   const googleLogin = () => {
     window.open();
@@ -25,12 +28,18 @@ const Login = () => {
   const handleLogin = async (event) => {
     event.preventDefault();
     try {
-      if (data.data === true) {
-        toast.success("Login Successfully");
-      } else if (data.data === false) {
-        toast.error("Wrong credentials");
+      const response = await login(inputField);
+      if (response.data.status === true) {
+        dispatch(setLogin(response.data.user));
+        toast.success(response.data.message);
+        toast.success(response.data.message);
+        setTimeout(() => {
+          navigate("/");
+        }, 1000);
+      } else if (response.data.status === false) {
+        toast.error(response.data.error);
       } else {
-        toast.error("Internal server error");
+        toast.error(response.data.error);
       }
     } catch (error) {
       console.log(error);

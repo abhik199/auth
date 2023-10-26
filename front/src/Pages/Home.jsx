@@ -1,8 +1,14 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "./Home.css";
 import Updateprofile from "./Updateprofile";
+import { LogeIn } from "../http/api";
+import { Navigate } from "react-router-dom";
+import { setLogin } from "../features/auth/authSlice";
+import { useDispatch } from "react-redux";
 
 const Home = () => {
+  const dispatch = useDispatch();
+  const [inputField, setInputField] = useState({});
   const data = {
     id: 1,
     full_name: "Anand kirar",
@@ -14,6 +20,22 @@ const Home = () => {
     position: "backend developer",
     profile: "",
   };
+  // useEffect(() => {
+  //   async function findSession() {
+  //     const response = await LogeIn(data);
+  //     if (response.data.valid) {
+  //       dispatch(setLogin(response.data.user));
+  //       console.log(response.data);
+
+  //       <Navigate to={"/"} />;
+  //     } else {
+  //       console.log("remove session");
+
+  //       <Navigate to={"/login"} />;
+  //     }
+  //   }
+  //   findSession();
+  // }, []);
   return (
     <>
       <div className='container bg-info'>

@@ -7,20 +7,46 @@ import Updateprofile from "./Pages/Updateprofile";
 import { useSelector, useDispatch } from "react-redux";
 import { LogeIn } from "./http/api";
 import { setLogin } from "./features/auth/authSlice";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 function App() {
-  const { isAuthenticated, user } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
+  const [isLog, setIsLog] = useState(false);
+
+  const ProtectedRoute = ({ children }) => {
+    // const { isAuthenticated, user } = useSelector((state) => state.auth);
+    // console.log(isAuthenticated);
+    const isAuthenticated = true;
+
+    if (!isAuthenticated) {
+      return <Navigate to={"/login"} />;
+    } else {
+      <Navigate to={"/"}></Navigate>;
+    }
+
+    return children;
+  };
+
+  useEffect(() => {
+    async function checkLogin() {
+      const { data } = await LogeIn();
+      if (data.valid === true) {
+        setIsLog(true);
+        dispatch(setLogin(data.user));
+      }
+    }
+    checkLogin();
+  }, [ProtectedRoute]);
 
   return (
     <>
       <Routes>
-        <Route path='/login' element={<Login />} />
-        <Route path='/singup' element={<Signup />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/singup" element={<Signup />} />
         <Route
-          path='/'
+          path="/"
           element={
-            <ProtectedRoute isAuthenticated={isAuthenticated}>
+            <ProtectedRoute>
               <Home />
             </ProtectedRoute>
           }
@@ -30,22 +56,5 @@ function App() {
     </>
   );
 }
-
-const ProtectedRoute = ({ isAuthenticated, children }) => {
-  const dispatch = useDispatch();
-  async function call() {
-    const res = await LogeIn();
-    if (res.data.valid) {
-      dispatch(setLogin(res.data.user));
-    } else if (!isAuthenticated) {
-      return <Navigate to={"/login"} />;
-    } else {
-      return children;
-    }
-  }
-  useEffect(() => {
-    call();
-  }, []);
-};
 
 export default App;

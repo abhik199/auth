@@ -5,25 +5,29 @@ import userDto from "./../dtos/userDto.js";
 
 class userController {
   async createUser(req, res) {
-    console.log(req.body);
     try {
       const user = await userModel.findOne({ email: req.body.email });
       if (user) {
         return res.json({ error: "User already exists", status: false });
       }
-      const passwordHash = await bcrypt.hash(req.body.password, 10);
-      const newUser = await userModel.create({
-        ...req.body,
-        password: passwordHash,
-      });
+      const { name, email, password } = req.body;
+      const passwordHash = await bcrypt.hash(password, 10);
+
+      const newData = new userModel({ name, email, password: passwordHash });
+
+      // const newUser = await userModel.create({
+      //   ...req.body,
+      //   password: passwordHash,
+      // });
+
+      const newUser = await newData.save();
 
       if (!newUser) {
-        return res
-          .status(400)
-          .json({ error: "User not created", status: false });
+        return res.json({ error: "User not created", status: false });
       }
-      res.status(201).json({ user: newUser, status: true });
+      res.json({ user: newUser, status: true });
     } catch (error) {
+      console.log(error);
       res.json({ error: error.message });
     }
   }
